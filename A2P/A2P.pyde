@@ -13,6 +13,7 @@ board = [
 def setup():
     size(500,500)
     draw_sudoku_grid()
+    textSize(50)
     drawNum(width/2, height/2, 500)
     
 def draw_sudoku_grid():
@@ -33,6 +34,7 @@ def drawNum(x, y, s):
     for i in range(9):
         for j in range(9):
             if board[i][j] != '0':
+                fill(0)
                 text(
                     board[i][j],
                     x - s/2 + s/18 + (j * s/9) - 12,
