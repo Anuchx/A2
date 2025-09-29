@@ -10,11 +10,20 @@ board = [
     ['0','0','0','0','8','0','0','7','9']
 ]
 
+original_board = []
+for i in range(9):
+    original_board.append([])
+    for j in range(9):
+        original_board[i].append(board[i][j])
+
+
 def setup():
     size(500,500)
-    draw_sudoku_grid()
-    textSize(50)
-    drawNum(width/2, height/2, 500)
+    textAlign(CENTER, CENTER)
+def draw():
+    background(255)
+    draw_sudoku_grid()      
+    drawNum()              
     
 def draw_sudoku_grid():
     stroke(0)
@@ -30,13 +39,19 @@ def draw_sudoku_grid():
     line(0, height / 3, width, height / 3)
     line(0, (2 * height) / 3, width, (2 * height) / 3)
 
-def drawNum(x, y, s):
+def drawNum():
+    cellWidth = width / 9
+    cellHeight = height / 9
+    textSize(cellHeight * 0.75)
+
     for i in range(9):
         for j in range(9):
             if board[i][j] != '0':
-                fill(0)
-                text(
-                    board[i][j],
-                    x - s/2 + s/18 + (j * s/9) - 12,
-                    y - s/2 + s/18 + (i * s/9) + 17
-                )
+                if original_board[i][j] != '0':
+                    fill(0)
+                else:
+                    fill(0, 0, 255)
+
+                x = j * cellWidth + cellWidth / 2
+                y = i * cellHeight + cellHeight / 2
+                text(board[i][j], x, y)
