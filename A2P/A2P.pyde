@@ -15,6 +15,9 @@ for i in range(9):
     original_board.append([])
     for j in range(9):
         original_board[i].append(board[i][j])
+        
+selectedRow = -1
+selectedCol = -1
 
 
 def setup():
@@ -22,7 +25,8 @@ def setup():
     textAlign(CENTER, CENTER)
 def draw():
     background(255)
-    draw_sudoku_grid()      
+    draw_sudoku_grid()
+    highlightSelectedCell()
     drawNum()              
     
 def draw_sudoku_grid():
@@ -42,7 +46,7 @@ def draw_sudoku_grid():
 def drawNum():
     cellWidth = width / 9
     cellHeight = height / 9
-    textSize(cellHeight * 0.75)
+    textSize(cellHeight * 0.65)
 
     for i in range(9):
         for j in range(9):
@@ -55,3 +59,28 @@ def drawNum():
                 x = j * cellWidth + cellWidth / 2
                 y = i * cellHeight + cellHeight / 2
                 text(board[i][j], x, y)
+                
+def highlightSelectedCell():
+    if selectedRow >= 0 and selectedCol >= 0:
+        fill(173, 216, 230) 
+        noStroke()
+        cellWidth = width / 9
+        cellHeight = height / 9
+
+        hlWidth = cellWidth * 0.75
+        hlHeight = cellHeight * 0.75
+
+        x = selectedCol * cellWidth + (cellWidth - hlWidth) / 2
+        y = selectedRow * cellHeight + (cellHeight - hlHeight) / 2
+        rect(x, y, hlWidth, hlHeight)
+
+
+def mousePressed():
+    global selectedRow, selectedCol
+    cellWidth = width / 9
+    cellHeight = height / 9
+    selectedCol = int(mouseX / cellWidth)
+    selectedRow = int(mouseY / cellHeight)
+    if selectedCol < 0 or selectedCol >= 9 or selectedRow < 0 or selectedRow >= 9:
+        selectedCol = -1
+        selectedRow = -1
