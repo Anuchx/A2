@@ -84,3 +84,12 @@ def mousePressed():
     if selectedCol < 0 or selectedCol >= 9 or selectedRow < 0 or selectedRow >= 9:
         selectedCol = -1
         selectedRow = -1
+        
+def keyPressed():
+    global board
+    if selectedRow >= 0 and selectedCol >= 0:
+        if original_board[selectedRow][selectedCol] == '0': 
+            if key in "123456789":
+                board[selectedRow][selectedCol] = key
+            elif keyCode in (DELETE, BACKSPACE) or key == " ":
+                board[selectedRow][selectedCol] = '0'
