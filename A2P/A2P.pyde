@@ -37,6 +37,7 @@ def setup():
 def draw():
     background(250)
     highlightSelectedCell()
+    drawNumbers()
     
     stroke(0)
     strokeWeight(1)
@@ -87,3 +88,36 @@ def keyPressed():
                 sudokuGrid[0][selectedRow][selectedCol] = num
             elif key == ' ' or keyCode == BACKSPACE or keyCode == DELETE:
                 sudokuGrid[0][selectedRow][selectedCol] = 0
+                
+def drawNumbers():
+    global sudokuGrid
+
+    if sudokuGrid and sudokuGrid[0] and sudokuGrid[1]:
+        cellWidth = width / 9.0
+        cellHeight = width / 9.0
+
+        for row in range(9):
+            for col in range(9):
+                # grey background for un-editable cells
+                if sudokuGrid[1][row][col] == False:
+                    fill(180)
+                    noStroke()
+                    rect(col * cellWidth,
+                         row * cellHeight,
+                         cellWidth,
+                         cellHeight)
+
+                val = sudokuGrid[0][row][col]
+                if val != 0:
+                    noStroke()
+                    textAlign(CENTER, CENTER)
+                    textSize(20)
+
+                    if sudokuGrid[1][row][col] == False:
+                        fill(0)  # black for fixed numbers
+                    else:
+                        fill(29, 78, 216)  # blue for user input
+
+                    x = (col * width) / 9.0 + width / 18.0
+                    y = (row * width) / 9.0 + width / 18.0
+                    text(str(val), x, y)
