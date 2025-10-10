@@ -40,23 +40,32 @@ def setup():
 
 def draw():
     background(220)
+    
+    gameEvent()
+    
     drawMenu()
+    
     pushMatrix()
     translate(0, topMargin)
+    
     highlightSelectedCell()
+    
     drawNumbers()
+    
     stroke(0)
     strokeWeight(1)
     for i in range(1, 9):
         x_pos = i * width / 9.0
         line(x_pos, 0, x_pos, width)
         line(0, x_pos, width, x_pos)
+        
     stroke(0)
     strokeWeight(3)
     for i in range(1, 3):
         pos = i * width / 3.0
         line(pos, 0, pos, width)
         line(0, pos, width, pos)
+        
     popMatrix()
 
 def drawMenu():
@@ -64,15 +73,18 @@ def drawMenu():
     fill(220)
     noStroke()
     rect(0, 0, width, topMargin)
+    
     fill(0)
     textAlign(LEFT, CENTER)
     textSize(16)
     text(statusMessage, 10, topMargin / 2)
+    
     fill(29,78,216)
     textAlign(RIGHT, CENTER)
     textSize(14)
     saveText = "Save Current State"
     text(saveText, width-10, topMargin/2-10)
+    
     textWidth_save = textWidth(saveText)
     if (mouseX > width-10-textWidth_save and mouseX < width-10 and
         mouseY > topMargin/2-20 and mouseY < topMargin/2):
@@ -127,13 +139,49 @@ def mousePressed():
         saveFile()
 
 def keyPressed():
-    global sudokuGrid
+    global sudokuGrid, statusMessage
     if selectedRow>=0 and selectedCol>=0:
         if sudokuGrid[1][selectedRow][selectedCol]==True:
             if key>='1' and key<='9':
-                sudokuGrid[0][selectedRow][selectedCol]=int(key)
+                if isValidNumber(int(key), selectedRow, selectedCol):
+                    sudokuGrid[0][selectedRow][selectedCol]=int(key)
+                    statusMessage="Status : Okay :)"
+                else:
+                    sudokuGrid[0][selectedRow][selectedCol]=int(key)
+                    statusMessage="Status : Not Okay :("
             elif key==' ' or keyCode==BACKSPACE or keyCode==DELETE:
                 sudokuGrid[0][selectedRow][selectedCol]=0
+                statusMessage="Status :"
+
+def isValidNumber(num, row, col):
+    for c in range(9):
+        if c != col and sudokuGrid[0][row][c] == num:
+            return False
+
+    for r in range(9):
+        if r != row and sudokuGrid[0][r][col] == num:
+            return False
+
+    boxRow = (row // 3) * 3
+    boxCol = (col // 3) * 3
+
+    for r in range(boxRow, boxRow + 3):
+        for c in range(boxCol, boxCol + 3):
+            if (r != row or c != col) and sudokuGrid[0][r][c] == num:
+                return False
+
+    return True
+
+def gameEvent():
+    global statusMessage
+    for r in range(9):
+        for c in range(9):
+            if sudokuGrid[0][r][c]==0:
+                return
+    statusMessage="You win!"
+    for r in range(9):
+        for c in range(9):
+            sudokuGrid[1][r][c]=False
 
 def saveFile():
     default_name = datetime.now().strftime("%Y-%m-%d_%H%M%S.sudoku")
@@ -142,16 +190,19 @@ def saveFile():
 
 def saveFileSelected(selection):
     global statusMessage
+    
     rows = []
     for r in range(9):
         row_str = ",".join(str(sudokuGrid[0][r][c]) for c in range(9))
         rows.append(row_str)
     top = "*".join(rows)
+
     rows2 = []
     for r in range(9):
         row_str = ",".join("true" if sudokuGrid[1][r][c] else "false" for c in range(9))
         rows2.append(row_str)
     bottom = "*".join(rows2)
+    
     try:
         if not selection:
             return
@@ -164,9 +215,9 @@ def saveFileSelected(selection):
         content = top + "\n#\n" + bottom
         with open(path, "w") as f:
             f.write(content)
-        statusMessage = "Save Successful."
+        statusMessage="Save Successful."
     except Exception as e:
-        statusMessage = "Save Failed."
+        statusMessage="Save Failed."
 
 def loadFile():
     global sudokuGrid, selectedRow, selectedCol, statusMessage
@@ -183,13 +234,13 @@ def loadFile():
         for r in range(9):
             cells = rows_bool[r].split(",")
             for c in range(9):
-                if cells[c].strip() == "true":
-                    sudokuGrid[1][r][c] = True
+                if cells[c].strip()=="true":
+                    sudokuGrid[1][r][c]=True
                 else:
-                    sudokuGrid[1][r][c] = False
-        selectedRow = -1
-        selectedCol = -1
-        statusMessage = "Load Successful."
+                    sudokuGrid[1][r][c]=False
+        selectedRow=-1
+        selectedCol=-1
+        statusMessage="Load Successful."
     except Exception as e:
-        statusMessage = "Load Failed: " + str(e)
+        statusMessage="Load Failed: "+str(e)
         traceback.print_exc()
