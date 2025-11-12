@@ -45,28 +45,14 @@ def draw():
     
     drawMenu()
     
-    pushMatrix()
-    translate(0, topMargin)
+    gridX, gridY = 0, topMargin
+    gridWidth, gridHeight = width, width
     
-    highlightSelectedCell()
+    highlightSelectedCell(gridX, gridY, gridWidth, gridHeight)
     
-    drawNumbers()
+    drawNumbers(gridX, gridY, gridWidth, gridHeight)
     
-    stroke(0)
-    strokeWeight(1)
-    for i in range(1, 9):
-        x_pos = i * width / 9.0
-        line(x_pos, 0, x_pos, width)
-        line(0, x_pos, width, x_pos)
-        
-    stroke(0)
-    strokeWeight(3)
-    for i in range(1, 3):
-        pos = i * width / 3.0
-        line(pos, 0, pos, width)
-        line(0, pos, width, pos)
-        
-    popMatrix()
+    drawGrid(gridX, gridY, gridWidth, gridHeight)
 
 def drawMenu():
     global statusMessage
@@ -85,43 +71,62 @@ def drawMenu():
     saveText = "Save Current State"
     text(saveText, width-10, topMargin/2-10)
     
-    textWidth_save = textWidth(saveText)
+    textWidth_save = textWidth(saveText) 
+       
     if (mouseX > width-10-textWidth_save and mouseX < width-10 and
         mouseY > topMargin/2-20 and mouseY < topMargin/2):
         stroke(29,78,216)
         strokeWeight(1)
         line(width-10-textWidth_save, topMargin/2-5, width-10, topMargin/2-5)
 
-def highlightSelectedCell():
+def highlightSelectedCell(x_start, y_start, grid_width, grid_height):
     if selectedRow >= 0 and selectedCol >= 0:
         fill(150)
         noStroke()
-        cellWidth = width / 9.0
-        cellHeight = width / 9.0
-        rect(selectedCol*cellWidth, selectedRow*cellHeight, cellWidth, cellHeight)
+        cellWidth = grid_width / 9.0
+        cellHeight = grid_height / 9.0
+        rect(x_start + selectedCol*cellWidth, y_start + selectedRow*cellHeight, cellWidth, cellHeight)
 
-def drawNumbers():
+def drawNumbers(x_start, y_start, grid_width, grid_height):
     if sudokuGrid and sudokuGrid[0] and sudokuGrid[1]:
-        cellWidth = width / 9.0
-        cellHeight = width / 9.0
+        cellWidth = grid_width / 9.0
+        cellHeight = grid_height / 9.0
+        
         for row in range(9):
             for col in range(9):
                 if sudokuGrid[1][row][col]==False:
                     fill(180)
                     noStroke()
-                    rect(col*cellWidth,row*cellHeight,cellWidth,cellHeight)
+                    rect(x_start + col*cellWidth, y_start + row*cellHeight, cellWidth, cellHeight)
+                
                 val = sudokuGrid[0][row][col]
+                
                 if val != 0:
                     noStroke()
-                    textAlign(CENTER,CENTER)
-                    textSize(20)
+                    textAlign(CENTER, CENTER)
+                    textSize(cellHeight*0.7)
+                    
                     if sudokuGrid[1][row][col]==False:
                         fill(0)
                     else:
                         fill(29,78,216)
-                    x = col*cellWidth+cellWidth/2
-                    y = row*cellHeight+cellHeight/2
-                    text(str(val),x,y)
+                    
+                    x = x_start + col*cellWidth + cellWidth/2
+                    y = y_start + row*cellHeight + cellHeight/2
+                    text(str(val), x, y)
+
+def drawGrid(x_start, y_start, grid_width, grid_height):
+    stroke(0)
+    
+    for i in range(1, 9):
+        strokeWeight(1)
+        line(x_start + i*grid_width/9, y_start, x_start + i*grid_width/9, y_start + grid_height)
+        line(x_start, y_start + i*grid_height/9, x_start + grid_width, y_start + i*grid_height/9)
+    
+    for i in range(1, 3):
+        strokeWeight(3)
+        line(x_start + i*grid_width/3, y_start, x_start + i*grid_width/3, y_start + grid_height)
+        line(x_start, y_start + i*grid_height/3, x_start + grid_width, y_start + i*grid_height/3)
 
 def mousePressed():
     global selectedRow, selectedCol
