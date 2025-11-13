@@ -7,6 +7,7 @@ selectedRow = -1
 selectedCol = -1
 statusMessage = "Status :"
 topMargin = 60
+menuPosition = "top"
 
 def setup():
     global sudokuGrid
@@ -36,48 +37,58 @@ def setup():
         ]
     ]
     textAlign(CENTER, CENTER)
-    loadFile()
+    loadFile(sudokuGrid, selectedRow, selectedCol, statusMessage)
 
 def draw():
     background(220)
-    
-    gameEvent()
-    
-    drawMenu()
-    
-    gridX, gridY = 0, topMargin
-    gridWidth, gridHeight = width, width
-    
+    gameEvent(statusMessage)
+
+    if menuPosition == "top":
+        gridX, gridY = 0, topMargin
+        gridWidth, gridHeight = width, height - topMargin
+    elif menuPosition == "bottom":
+        gridX, gridY = 0, 0
+        gridWidth, gridHeight = width, height - topMargin
+
     highlightSelectedCell(gridX, gridY, gridWidth, gridHeight)
     
     drawNumbers(gridX, gridY, gridWidth, gridHeight)
     
     drawGrid(gridX, gridY, gridWidth, gridHeight)
+    
+    drawMenu(menuPosition,statusMessage)
 
-def drawMenu():
-    global statusMessage
+def drawMenu(menuPosition,statusMessage):
     fill(220)
     noStroke()
-    rect(0, 0, width, topMargin)
-    
+
+    if menuPosition == "top":
+        rect(0, 0, width, topMargin)
+        status_y = topMargin / 2
+        mouseY_min = 0
+        mouseY_max = topMargin
+    elif menuPosition == "bottom":
+        rect(0, height - topMargin, width, topMargin)
+        status_y = height - topMargin / 2
+        mouseY_min = height - topMargin
+        mouseY_max = height
+
     fill(0)
     textAlign(LEFT, CENTER)
     textSize(16)
-    text(statusMessage, 10, topMargin / 2)
-    
+    text(statusMessage, 10, status_y)
+
     fill(29,78,216)
     textAlign(RIGHT, CENTER)
     textSize(14)
     saveText = "Save Current State"
-    text(saveText, width-10, topMargin/2-10)
-    
-    textWidth_save = textWidth(saveText) 
-       
-    if (mouseX > width-10-textWidth_save and mouseX < width-10 and
-        mouseY > topMargin/2-20 and mouseY < topMargin/2):
+    text(saveText, width-10, status_y-10)
+
+    textWidth_save = textWidth(saveText)
+    if mouseX > width-10-textWidth_save and mouseX < width-10 and mouseY > mouseY_min and mouseY < mouseY_max:
         stroke(29,78,216)
         strokeWeight(1)
-        line(width-10-textWidth_save, topMargin/2-5, width-10, topMargin/2-5)
+        line(width-10-textWidth_save, status_y-5, width-10, status_y-5)
 
 def highlightSelectedCell(x_start, y_start, grid_width, grid_height):
     if selectedRow >= 0 and selectedCol >= 0:
@@ -127,20 +138,31 @@ def drawGrid(x_start, y_start, grid_width, grid_height):
         strokeWeight(3)
         line(x_start + i*grid_width/3, y_start, x_start + i*grid_width/3, y_start + grid_height)
         line(x_start, y_start + i*grid_height/3, x_start + grid_width, y_start + i*grid_height/3)
-
+        
 def mousePressed():
-    global selectedRow, selectedCol
-    cellWidth = width / 9.0
-    cellHeight = width / 9.0
-    selectedCol = int(mouseX / cellWidth)
-    selectedRow = int((mouseY-topMargin)/cellHeight)
-    if selectedRow<0 or selectedRow>=9 or selectedCol<0 or selectedCol>=9:
-        selectedRow=-1
-        selectedCol=-1
-    saveText="Save Current State"
-    textWidth_save=textWidth(saveText)
-    if (mouseX>width-10-textWidth_save and mouseX<width-10 and
-        mouseY>topMargin/2-20 and mouseY<topMargin/2):
+    global selectedRow, selectedCol, menuPosition
+
+    if menuPosition == "top":
+        gridX, gridY = 0, topMargin
+        gridWidth, gridHeight = width, height - topMargin
+    elif menuPosition == "bottom":
+        gridX, gridY = 0, 0
+        gridWidth, gridHeight = width, height - topMargin
+
+    cellWidth = gridWidth / 9.0
+    cellHeight = gridHeight / 9.0
+    
+    selectedCol = int((mouseX - gridX) / cellWidth)
+    selectedRow = int((mouseY - gridY) / cellHeight)
+    
+    if selectedRow < 0 or selectedRow >= 9 or selectedCol < 0 or selectedCol >= 9:
+        selectedRow = -1
+        selectedCol = -1
+
+    saveText = "Save Current State"
+    textWidth_save = textWidth(saveText)
+    if (menuPosition == "top" and mouseY < topMargin) or \
+       (menuPosition == "bottom" and mouseY > height-topMargin):
         saveFile()
 
 def keyPressed():
@@ -177,8 +199,8 @@ def isValidNumber(num, row, col):
 
     return True
 
-def gameEvent():
-    global statusMessage
+def gameEvent(statusMessage):
+    
     for r in range(9):
         for c in range(9):
             if sudokuGrid[0][r][c]==0:
@@ -224,8 +246,7 @@ def saveFileSelected(selection):
     except Exception as e:
         statusMessage="Save Failed."
 
-def loadFile():
-    global sudokuGrid, selectedRow, selectedCol, statusMessage
+def loadFile(sudokuGrid, selectedRow, selectedCol, statusMessage):
     try:
         lines = loadStrings("ex1.sudoku")
         text = "\n".join(lines)
