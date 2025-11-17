@@ -290,3 +290,18 @@ def countEmptyAllRows():
     for r in range(9):
         emptyCounts.append(countEmptyCells(r))
     return emptyCounts
+
+def drawEmptyInfo(gridX, gridY, grid_width, grid_height):
+    emptyList = countEmptyAllRows()
+    cellH = grid_height / 9.0
+    x_pos = gridX + grid_width + 17
+    textAlign(LEFT, CENTER)
+    textSize(30)
+    
+    for r in range(9):
+        y = gridY + (r + 0.5) * cellH
+        if emptyList[r] == 0:
+            fill(0, 180, 0)
+        else:
+            fill(200, 0, 0)
+        text(str(emptyList[r]), x_pos, y)
