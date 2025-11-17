@@ -11,7 +11,7 @@ menuPosition = "top"
 
 def setup():
     global sudokuGrid
-    size(500, 500 + topMargin)
+    size(550, 500 + topMargin)
     sudokuGrid = [
         [
             [0,0,0,0,0,0,0,0,0],
@@ -45,10 +45,11 @@ def draw():
 
     if menuPosition == "top":
         gridX, gridY = 0, topMargin
-        gridWidth, gridHeight = width, height - topMargin
+        gridWidth, gridHeight = width-50, height - topMargin
     elif menuPosition == "bottom":
         gridX, gridY = 0, 0
-        gridWidth, gridHeight = width, height - topMargin
+        gridWidth, gridHeight = width-50, height - topMargin
+
 
     highlightSelectedCell(gridX, gridY, gridWidth, gridHeight)
     
@@ -57,19 +58,21 @@ def draw():
     drawGrid(gridX, gridY, gridWidth, gridHeight)
     
     drawMenu(menuPosition,statusMessage)
+    
+    drawEmptyInfo(gridX, gridY, gridWidth, gridHeight)
 
 def drawMenu(menuPosition,statusMessage):
     fill(220)
     noStroke()
-
+    
     if menuPosition == "top":
         rect(0, 0, width, topMargin)
-        status_y = topMargin / 2
+        status_y = topMargin*0.75
         mouseY_min = 0
         mouseY_max = topMargin
     elif menuPosition == "bottom":
         rect(0, height - topMargin, width, topMargin)
-        status_y = height - topMargin / 2
+        status_y = height - topMargin + topMargin*0.25
         mouseY_min = height - topMargin
         mouseY_max = height
 
@@ -139,15 +142,19 @@ def drawGrid(x_start, y_start, grid_width, grid_height):
         line(x_start + i*grid_width/3, y_start, x_start + i*grid_width/3, y_start + grid_height)
         line(x_start, y_start + i*grid_height/3, x_start + grid_width, y_start + i*grid_height/3)
         
+    strokeWeight(3.5)
+    noFill()
+    rect(x_start, y_start, grid_width, grid_height)
+
 def mousePressed():
     global selectedRow, selectedCol, menuPosition
 
     if menuPosition == "top":
         gridX, gridY = 0, topMargin
-        gridWidth, gridHeight = width, height - topMargin
+        gridWidth, gridHeight = width-50, height - topMargin
     elif menuPosition == "bottom":
         gridX, gridY = 0, 0
-        gridWidth, gridHeight = width, height - topMargin
+        gridWidth, gridHeight = width-50, height - topMargin
 
     cellWidth = gridWidth / 9.0
     cellHeight = gridHeight / 9.0
@@ -270,3 +277,16 @@ def loadFile(sudokuGrid, selectedRow, selectedCol, statusMessage):
     except Exception as e:
         statusMessage="Load Failed: "+str(e)
         traceback.print_exc()
+
+def countEmptyCells(row):
+    count = 0
+    for c in range(9):
+        if sudokuGrid[0][row][c] == 0:
+            count += 1
+    return count
+
+def countEmptyAllRows():
+    emptyCounts = []
+    for r in range(9):
+        emptyCounts.append(countEmptyCells(r))
+    return emptyCounts
