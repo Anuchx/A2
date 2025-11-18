@@ -8,10 +8,11 @@ selectedCol = -1
 statusMessage = "Status :"
 topMargin = 60
 menuPosition = "top"
+rowEmptyCount = [0,0,0,0,0,0,0,0,0]
 
 def setup():
     global sudokuGrid
-    size(550, 500 + topMargin)
+    size(650, 500 + topMargin)
     sudokuGrid = [
         [
             [0,0,0,0,0,0,0,0,0],
@@ -45,10 +46,10 @@ def draw():
 
     if menuPosition == "top":
         gridX, gridY = 0, topMargin
-        gridWidth, gridHeight = width-50, height - topMargin
+        gridWidth, gridHeight = width-150, height - topMargin
     elif menuPosition == "bottom":
         gridX, gridY = 0, 0
-        gridWidth, gridHeight = width-50, height - topMargin
+        gridWidth, gridHeight = width-150, height - topMargin
 
 
     highlightSelectedCell(gridX, gridY, gridWidth, gridHeight)
@@ -61,7 +62,7 @@ def draw():
     
     drawMenu(menuPosition,statusMessage)
     
-    drawEmptyInfo(gridX, gridY, gridWidth, gridHeight)
+    drawEmptyButtons(gridX, gridY, gridWidth, gridHeight)
 
 def drawMenu(menuPosition,statusMessage):
     fill(220)
@@ -166,10 +167,10 @@ def mousePressed():
 
     if menuPosition == "top":
         gridX, gridY = 0, topMargin
-        gridWidth, gridHeight = width-50, height - topMargin
+        gridWidth, gridHeight = width-150, height - topMargin
     elif menuPosition == "bottom":
         gridX, gridY = 0, 0
-        gridWidth, gridHeight = width-50, height - topMargin
+        gridWidth, gridHeight = width-150, height - topMargin
 
     cellWidth = gridWidth / 9.0
     cellHeight = gridHeight / 9.0
@@ -181,11 +182,40 @@ def mousePressed():
         selectedRow = -1
         selectedCol = -1
 
+    buttonW, buttonH, gap = 40, 30, 10
+    x_pos = gridX + gridWidth + 60
+    for r in range(9):
+        y = gridY + r*cellHeight + cellHeight/2
+        if x_pos - buttonW - gap < mouseX < x_pos - gap and y - buttonH/2 < mouseY < y + buttonH/2:
+            rowEmptyCount[r] += 1
+        if x_pos + gap < mouseX < x_pos + gap + buttonW and y - buttonH/2 < mouseY < y + buttonH/2:
+            rowEmptyCount[r] = max(0, rowEmptyCount[r]-1)
+
     saveText = "Save Current State"
     textWidth_save = textWidth(saveText)
     if (menuPosition == "top" and mouseY < topMargin) or \
        (menuPosition == "bottom" and mouseY > height-topMargin):
-        saveFile()
+        if width-10-textWidth_save < mouseX < width-10:
+            saveFile()
+
+def drawEmptyButtons(gridX, gridY, gridWidth, gridHeight):
+    cellH = gridHeight / 9.0
+    buttonW, buttonH, gap = 40, 30, 10
+    x_pos = gridX + gridWidth + 60
+    for r in range(9):
+        y = gridY + r*cellH + cellH/2
+        fill(0)
+        textSize(24)
+        textAlign(CENTER,CENTER)
+        text(str(rowEmptyCount[r]), x_pos, y)
+        fill(100,200,100)
+        rect(x_pos - buttonW - gap, y - buttonH/2, buttonW, buttonH)
+        fill(200,100,100)
+        rect(x_pos + gap, y - buttonH/2, buttonW, buttonH)
+        fill(0)
+        textSize(20)
+        text("+", x_pos - buttonW/2 - gap, y)
+        text("-", x_pos + buttonW/2 + gap, y)
 
 def keyPressed():
     global sudokuGrid, statusMessage
@@ -292,31 +322,3 @@ def loadFile(sudokuGrid, selectedRow, selectedCol, statusMessage):
     except Exception as e:
         statusMessage="Load Failed: "+str(e)
         traceback.print_exc()
-
-def countEmptyCells(row):
-    count = 0
-    for c in range(9):
-        if sudokuGrid[0][row][c] == 0:
-            count += 1
-    return count
-
-def countEmptyAllRows():
-    emptyCounts = []
-    for r in range(9):
-        emptyCounts.append(countEmptyCells(r))
-    return emptyCounts
-
-def drawEmptyInfo(gridX, gridY, grid_width, grid_height):
-    emptyList = countEmptyAllRows()
-    cellH = grid_height / 9.0
-    x_pos = gridX + grid_width + 17
-    textAlign(LEFT, CENTER)
-    textSize(30)
-    
-    for r in range(9):
-        y = gridY + (r + 0.5) * cellH
-        if emptyList[r] == 0:
-            fill(0, 180, 0)
-        else:
-            fill(200, 0, 0)
-        text(str(emptyList[r]), x_pos, y)
