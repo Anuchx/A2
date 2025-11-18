@@ -53,6 +53,8 @@ def draw():
 
     highlightSelectedCell(gridX, gridY, gridWidth, gridHeight)
     
+    highlightEmptyCellsInRow(gridX, gridY, gridWidth, gridHeight)
+
     drawNumbers(gridX, gridY, gridWidth, gridHeight)
     
     drawGrid(gridX, gridY, gridWidth, gridHeight)
@@ -100,6 +102,19 @@ def highlightSelectedCell(x_start, y_start, grid_width, grid_height):
         cellWidth = grid_width / 9.0
         cellHeight = grid_height / 9.0
         rect(x_start + selectedCol*cellWidth, y_start + selectedRow*cellHeight, cellWidth, cellHeight)
+
+def highlightEmptyCellsInRow(gridX, gridY, gridWidth, gridHeight):
+    if selectedRow < 0:
+        return
+
+    cellW = gridWidth / 9.0
+    cellH = gridHeight / 9.0
+
+    for c in range(9):
+        if sudokuGrid[0][selectedRow][c] == 0:
+            fill(220, 40, 40, 150)
+            noStroke()
+            rect(gridX + c*cellW, gridY + selectedRow*cellH, cellW, cellH)
 
 def drawNumbers(x_start, y_start, grid_width, grid_height):
     if sudokuGrid and sudokuGrid[0] and sudokuGrid[1]:
