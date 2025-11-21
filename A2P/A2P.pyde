@@ -10,6 +10,7 @@ topMargin = 60
 menuPosition = "top"
 rowEmptyCount = [0,0,0,0,0,0,0,0,0]
 currentRow = 0
+rowChecked = [False,False,False,False,False,False,False,False,False]
 
 def setup():
     global sudokuGrid
@@ -199,8 +200,11 @@ def mousePressed():
         y = gridY + r*cellHeight + cellHeight/2
         if x_pos - buttonW - gap < mouseX < x_pos - gap and y - buttonH/2 < mouseY < y + buttonH/2:
             rowEmptyCount[r] += 1
+            checkRowEmptyCount()
+
         if x_pos + gap < mouseX < x_pos + gap + buttonW and y - buttonH/2 < mouseY < y + buttonH/2:
             rowEmptyCount[r] = max(0, rowEmptyCount[r]-1)
+            checkRowEmptyCount()
 
     saveText = "Save Current State"
     textWidth_save = textWidth(saveText)
@@ -209,13 +213,29 @@ def mousePressed():
         if width-10-textWidth_save < mouseX < width-10:
             saveFile()
 
+def checkRowEmptyCount():
+    global currentRow, rowChecked
+    for r in range(9):
+        actual = countEmptyCells(r)
+        if rowEmptyCount[r] == actual:
+            rowChecked[r] = True
+            if r == currentRow:
+                currentRow += 1
+        else:
+            rowChecked[r] = False
+
 def drawEmptyButtons(gridX, gridY, gridWidth, gridHeight):
     cellH = gridHeight / 9.0
     buttonW, buttonH, gap = 40, 30, 10
     x_pos = gridX + gridWidth + 60
     for r in range(9):
         y = gridY + r*cellH + cellH/2
-        fill(0)
+
+        if rowChecked[r]:
+            fill(0,200,0)   
+        else:
+            fill(0)         
+
         textSize(24)
         textAlign(CENTER,CENTER)
         text(str(rowEmptyCount[r]), x_pos, y)
@@ -233,6 +253,7 @@ def keyPressed():
     if selectedRow>=0 and selectedCol>=0:
         if sudokuGrid[1][selectedRow][selectedCol]==True:
             if key>='1' and key<='9':
+                checkRowEmptyCount()
                 if isValidNumber(int(key), selectedRow, selectedCol):
                     sudokuGrid[0][selectedRow][selectedCol]=int(key)
                     statusMessage="Status : Okay :)"
@@ -241,6 +262,7 @@ def keyPressed():
                     statusMessage="Status : Not Okay :("
             elif key==' ' or keyCode==BACKSPACE or keyCode==DELETE:
                 sudokuGrid[0][selectedRow][selectedCol]=0
+                checkRowEmptyCount()
                 statusMessage="Status :"
 
 def isValidNumber(num, row, col):
