@@ -9,6 +9,7 @@ statusMessage = "Status :"
 topMargin = 60
 menuPosition = "top"
 rowEmptyCount = [0,0,0,0,0,0,0,0,0]
+currentRow = 0
 
 def setup():
     global sudokuGrid
@@ -54,6 +55,8 @@ def draw():
 
     highlightSelectedCell(gridX, gridY, gridWidth, gridHeight)
     
+    highlightCurrentRow(gridX, gridY, gridWidth, gridHeight)
+    
     highlightEmptyCellsInRow(gridX, gridY, gridWidth, gridHeight)
 
     drawNumbers(gridX, gridY, gridWidth, gridHeight)
@@ -63,6 +66,14 @@ def draw():
     drawMenu(menuPosition,statusMessage)
     
     drawEmptyButtons(gridX, gridY, gridWidth, gridHeight)
+
+def highlightCurrentRow(gridX, gridY, gridWidth, gridHeight):
+    if currentRow < 0 or currentRow >= 9:
+        return
+    cellH = gridHeight / 9.0
+    fill(0, 255, 0, 50)
+    noStroke()
+    rect(gridX, gridY + currentRow*cellH, gridWidth, cellH)
 
 def drawMenu(menuPosition,statusMessage):
     fill(220)
@@ -322,3 +333,16 @@ def loadFile(sudokuGrid, selectedRow, selectedCol, statusMessage):
     except Exception as e:
         statusMessage="Load Failed: "+str(e)
         traceback.print_exc()
+
+def countEmptyCells(row):
+    count = 0
+    for c in range(9):
+        if sudokuGrid[0][row][c] == 0:
+            count += 1
+    return count
+
+def countEmptyAllRows():
+    emptyCounts = []
+    for r in range(9):
+        emptyCounts.append(countEmptyCells(r))
+    return emptyCounts
